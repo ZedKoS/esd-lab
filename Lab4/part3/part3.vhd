@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 USE ieee.numeric_std.all;
 
-entity lab4part3 is
+entity part3 is
 
 	port (KEY : in std_logic_vector(0 to 0); --manual clock
 			SW : in std_logic_vector(1 downto 0); --sw0 activelow reset, sw1 enable
@@ -10,7 +10,7 @@ entity lab4part3 is
 			
 end entity;
 
-architecture Behavior of lab4part3 is
+architecture Behavior of part3 is
 
 	component fourbitcounter_part3 is -- counter basato su Q <= Q + 1
 	port (En, Clr, Clk : in std_logic;
@@ -22,14 +22,16 @@ architecture Behavior of lab4part3 is
 		  dec : out std_logic_vector(0 to 6));
 	end component;
 	
+	signal Q : unsigned(15 downto 0); -- segnale da mandare al counter
 	signal Q_std : std_logic_vector(15 downto 0); --segnale da mandare ai dec
-
+	
 	
 begin
 	-- a differenza di part2 usiamo un solo counter
 	counter : fourbitcounter_part3 port map (En => SW(1), Clr => SW(0), 
-											clk => KEY(0), Q => std_logic_vector(Q_std));
+											clk => KEY(0), Q => Q);
 	
+	Q_std <= std_logic_vector(Q);
 	-- print del risultato
 	DEC0 : hexadecimal_ssd_decoder port map (c => Q_std(3 downto 0), dec => HEX0);
 	DEC1 : hexadecimal_ssd_decoder port map (c => Q_std(7 downto 4), dec => HEX1);
