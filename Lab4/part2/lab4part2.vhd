@@ -29,7 +29,7 @@ begin
 	Clk <= KEY(0);
 	Counter_loop:
 	for i in 0 to 3 generate
-		Counter : fourbitcounter port map (En =>Enable_vec(i), Clr => Reset, Clk => Clk, Q => Q(4*i+3 downto 4*i),
+		Counter : fourbitcounter port map (En => Enable_vec(i), Clr => Reset, Clk => Clk, Q => Q(4*i+3 downto 4*i),
 														outputCarry => Enable_vec(i+1));
 	end generate;
 	DEC0 : hexadecimal_ssd_decoder port map (c => Q(3 downto 0), dec => HEX0);
