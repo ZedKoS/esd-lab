@@ -2,13 +2,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity fourbitcounter is
+entity counter4 is
 	port (En, Clr, Clk : in std_logic;
 			Q : buffer std_logic_vector(3 downto 0);
 			outputCarry : out std_logic);
 end entity;
 
-architecture Behavior of fourbitcounter is
+architecture Behavior of counter4 is
 	component flipflop IS
 	PORT (D, Clock, Resetn : IN STD_LOGIC;
 		Q : OUT STD_LOGIC);

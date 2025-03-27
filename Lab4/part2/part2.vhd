@@ -8,7 +8,7 @@ entity part2 is
 end entity;
 
 architecture Behavior of part2 is
-	component fourbitcounter is
+	component counter4 is
 	port (En, Clr, Clk : in std_logic;
 			Q : out std_logic_vector(3 downto 0);
 			outputCarry : out std_logic);
@@ -30,7 +30,7 @@ begin
 
 	Counter_loop:
 	for i in 0 to 3 generate
-		Counter : fourbitcounter port map (En => Enable_vec(i), Clr => Reset, Clk => Clk, Q => Q(4*i+3 downto 4*i),
+		Counter : counter4 port map (En => Enable_vec(i), Clr => Reset, Clk => Clk, Q => Q(4*i+3 downto 4*i),
 														outputCarry => Enable_vec(i+1));
 	end generate;
 
