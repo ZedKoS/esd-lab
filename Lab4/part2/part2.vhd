@@ -1,13 +1,13 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity lab4part2 is
+entity part2 is
 	port (KEY : in std_logic_vector(0 to 0); --manual clock
-			SW : in std_logic_vector(1 downto 0); --sw0 activelow reset, sw1 enable
+			SW : in std_logic_vector(1 downto 0); --sw0 reset, sw1 enable
 			HEX0, HEX1, HEX2, HEX3 : out std_logic_vector(0 to 6)); --displays
 end entity;
 
-architecture Behavior of lab4part2 is
+architecture Behavior of part2 is
 	component fourbitcounter is
 	port (En, Clr, Clk : in std_logic;
 			Q : out std_logic_vector(3 downto 0);
@@ -27,11 +27,13 @@ begin
 	Reset <= SW(0);
 	Enable_vec(0) <= En;
 	Clk <= KEY(0);
+
 	Counter_loop:
 	for i in 0 to 3 generate
 		Counter : fourbitcounter port map (En => Enable_vec(i), Clr => Reset, Clk => Clk, Q => Q(4*i+3 downto 4*i),
 														outputCarry => Enable_vec(i+1));
 	end generate;
+
 	DEC0 : hexadecimal_ssd_decoder port map (c => Q(3 downto 0), dec => HEX0);
 	DEC1 : hexadecimal_ssd_decoder port map (c => Q(7 downto 4), dec => HEX1);
 	DEC2 : hexadecimal_ssd_decoder port map (c => Q(11 downto 8), dec => HEX2);
