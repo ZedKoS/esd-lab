@@ -2,12 +2,12 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 
-ENTITY lab4part1 IS
+ENTITY part1 IS
 	PORT ( Clk, R, S : IN STD_LOGIC;
 		Q : OUT STD_LOGIC);
 	END entity;
 	
-ARCHITECTURE Structural OF lab4part1 IS
+ARCHITECTURE Structural OF part1 IS
 	SIGNAL R_g, S_g, Qa, Qb : STD_LOGIC ;
 	ATTRIBUTE keep : boolean;
 	ATTRIBUTE keep of R_g, S_g, Qa, Qb : SIGNAL IS true;
