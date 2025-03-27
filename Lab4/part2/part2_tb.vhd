@@ -7,7 +7,7 @@ end entity;
 architecture Behavior of part2_tb is
 	component part2 is
 		port (KEY : in std_logic_vector(0 to 0); --manual clock
-			SW : in std_logic_vector(1 downto 0); --sw0 activelow reset, sw1 enable
+			SW : in std_logic_vector(1 downto 0); --sw0 reset, sw1 enable
 			HEX0, HEX1, HEX2, HEX3 : out std_logic_vector(0 to 6)); --displays
 	end component;
 
@@ -26,5 +26,4 @@ begin
 
 	Reset <= '1', '0' after 10 ns, '1' after 80 ns;
 	En <= '0', '1' after 20 ns;
-
 end architecture;
