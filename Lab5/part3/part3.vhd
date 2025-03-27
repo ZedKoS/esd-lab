@@ -109,13 +109,13 @@ begin
 	z <= '1' when y = E OR y = I else '0';
 
 	LEDR(9) <= z;
-	LEDR(8) <= '1' when y = A else '0';
-	LEDR(7) <= '1' when y = B else '0';
-	LEDR(6) <= '1' when y = C else '0';
-	LEDR(5) <= '1' when y = D else '0';
+	LEDR(8) <= '1' when y = I else '0';
+	LEDR(7) <= '1' when y = H else '0';
+	LEDR(6) <= '1' when y = G else '0';
+	LEDR(5) <= '1' when y = F else '0';
 	LEDR(4) <= '1' when y = E else '0';
-	LEDR(3) <= '1' when y = F else '0';
-	LEDR(2) <= '1' when y = G else '0';
-	LEDR(1) <= '1' when y = H else '0';
-	LEDR(0) <= '1' when y = I else '0';
+	LEDR(3) <= '1' when y = D else '0';
+	LEDR(2) <= '1' when y = C else '0';
+	LEDR(1) <= '1' when y = B else '0';
+	LEDR(0) <= '1' when y = A else '0';
 end Behavior;

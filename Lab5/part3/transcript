@@ -1,0 +1,16 @@
+# Compile of part3.vhd was successful.
+# Compile of part3_tb.vhd was successful.
+# 2 compiles, 0 failed with no errors.
+vsim -gui work.part3_tb
+# vsim -gui work.part3_tb 
+# Start time: 19:34:23 on Mar 27,2025
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.part3_tb(beh)
+# Loading work.part3(behavior)
+add wave *
+run
+quit -sim
+# End time: 19:35:28 on Mar 27,2025, Elapsed time: 0:01:05
+# Errors: 0, Warnings: 2
