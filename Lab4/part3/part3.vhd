@@ -14,7 +14,7 @@ architecture Behavior of part3 is
 		generic (N : natural);
 		port
 		(
-			En, Clr, Clk : in std_logic;
+			Enable, Reset, Clock : in std_logic;
 			overflow : out std_logic;
 			Q : out unsigned(N-1 downto 0)
 		);			
@@ -31,7 +31,7 @@ begin
 	-- a differenza di part2 usiamo un solo counter
 	counter : counterN
 		generic map (N => 16)
-		port map (En => SW(1), Clr => SW(0), clk => KEY(0), std_logic_vector(Q) => Q_std);
+		port map (Enable => SW(1), Reset => SW(0), Clock => KEY(0), std_logic_vector(Q) => Q_std);
 	
 	-- print del risultato
 	DEC0 : hexadecimal_ssd_decoder port map (c => Q_std(3 downto 0), dec => HEX0);

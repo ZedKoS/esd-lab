@@ -2,32 +2,32 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
--- Counter sincrono a N bit
+-- Counter sincrono a N bit con reset asincrono
 entity counterN is
 	generic (N : natural);
 	port
 	(
-		En, Clr, Clk : in std_logic;
-		overflow : out std_logic;
+		Enable, Reset, Clock : in std_logic;
+		Overflow : out std_logic;
 		Q : buffer unsigned(N-1 downto 0)
 	);			
 end entity;
 
 architecture Behavior of counterN is
 begin
-	process(Clr, clk)
+	process (Reset, Clock)
 	begin
-		-- clear attivo -> resetta Q e overflow
-		if Clr = '1' then
+		-- reset attivo -> resetta Q e overflow
+		if Reset = '1' then
 			Q <= (others => '0');
-			overflow <= '0';
+			Overflow <= '0';
 		-- ogni fronte di salita incremento Q se il counter è abilitato
-		elsif rising_edge(Clk) then
-			if En = '1' then
+		elsif rising_edge(Clock) then
+			if Enable = '1' then
 				if Q = to_unsigned(2**N - 1, N) then
-					overflow <= '1';
+					Overflow <= '1';
 				else
-					overflow <= '0';
+					Overflow <= '0';
 				end if;
 
 				Q <= Q + 1;
