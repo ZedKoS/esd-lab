@@ -21,3 +21,6 @@ work/
 *.mpf
 *.cr.mti
 *.wlf
+
+# Other
+.DS_Store
