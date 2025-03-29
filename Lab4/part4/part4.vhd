@@ -9,13 +9,14 @@ entity part4 is
 end entity;
 
 architecture Behavior of part4 is
-	component timer is
+	component Timer is
 		generic (N : natural);
 		port (
-			Enable, Clock, Clear : in std_logic;
+			Enable, Clock, AsyncReset : in std_logic;
 			EndCount : in unsigned(N-1 downto 0);
 			Count : buffer unsigned(N-1 downto 0);
-			Done : buffer std_logic
+			Done : buffer std_logic;
+			Wrap : buffer std_logic
 		);
 	end component;
 
@@ -44,13 +45,13 @@ begin
 
 	TIM: timer
 		generic map (N => 26)
-		port map (Enable => En, Clock => CLOCK_50, Clear => Reset,
-			EndCount => to_unsigned(50_000_000, 26), Done => inc_digit, Count => open);
+		port map (Enable => En, Clock => CLOCK_50, AsyncReset => Reset,
+			EndCount => to_unsigned(50_000_000, 26), Done => open, Wrap => inc_digit, Count => open);
 	
 	SecCounter: timer
 		generic map (N => 4)
-		port map (Enable => inc_digit, Clock => CLOCK_50, Clear => Reset,
-			EndCount => to_unsigned(9, 4), Done => open, std_logic_vector(Count) => digit);
+		port map (Enable => inc_digit, Clock => CLOCK_50, AsyncReset => Reset,
+			EndCount => to_unsigned(9, 4), Done => open, Wrap => open, std_logic_vector(Count) => digit);
 	
 	-- Lo utilizziamo con cifre 0-9 anche se supporta 0-15
 	Display: hexadecimal_ssd_decoder
