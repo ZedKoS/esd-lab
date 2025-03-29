@@ -1,9 +1,13 @@
 import os
 
+#NB DEVE ESSERCI SOLO UNA CARTELLA MAIN, CONTENENTE ALTRE CARTELLE. SE QUESTE CARTELLE CONTENGONO A LORO VOLTA
+#ALTRE CARTELLE IL PROGRAMMA NON FUNZIONA
+
 # Configurazione utente
-input_dir = "/users/davidecovolo/Desktop/esd-lab/schiavoESD/ProvaConc"
-output_prefix = "SCRIPT_"                          # Prefisso per i file di output
-output_master_filename = "ESD_LAB.txt"       # Nome del file combinato finale
+input_dir = "/users/davidecovolo/Desktop/esd-lab/schiavoESD/ProvaConc" #inserire la directory di input
+output_prefix = "SCRIPT_"                            # Prefisso per i file di output
+output_master_filename = "ESD_LAB.txt"               # Nome del file combinato finale
+
 
 # Elaborazione delle sottocartelle
 subfolders = [f.path for f in os.scandir(input_dir) if f.is_dir()]
@@ -37,6 +41,7 @@ for folder in subfolders:
 
     unito_files.append(output_filename)
     print(f"Creato file: {output_filename} per la cartella {folder_name}")
+
 
 # Creazione del file master combinato
 master_content = ""
