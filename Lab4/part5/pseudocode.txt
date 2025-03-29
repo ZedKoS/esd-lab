@@ -1,0 +1,28 @@
+
+const START_TIME = integer(SW(7 downto 0));
+
+## WAITING_LED
+
+# timer del tempo (in ms) che passa dal reset a LEDR[0] = 1
+start_timer = 0;
+# timer del tempo (in ms) di reazione
+reaction_timer = 0;
+
+while start_timer != START_TIME {
+    start_time += 1;
+}
+
+## TIMING
+
+LEDR(0) = 1;
+
+while reaction_timer < 9999 (ms) {
+    if KEY(3) = 0 {
+        break;
+    } else {
+        reaction_timer += 1;
+    }
+}
+
+## FREEZE
+LEDR(0) = 0;

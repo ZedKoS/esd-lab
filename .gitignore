@@ -1,6 +1,5 @@
 *.pdf
 *.png
-*.txt
 *.zip
 
 # Quartus files
@@ -15,6 +14,7 @@ greybox_tmp/
 *.qws
 *.vhd.bak
 *.rpt
+c5_pin_model_dump.txt
 
 # Modelsim files
 work/
