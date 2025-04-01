@@ -1,19 +1,20 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity Register is
+entity Reg is
     generic map (N : natural)
 	port
     (
         DataIn : in std_logic_vector(N-1 downto 0);
+        Enable : in std_logic;
         Clock : in std_logic;
         AsyncReset : in std_logic := '0';
         SyncReset  : in std_logic := '0';
 		DataOut : out std_logic_vector(N-1 downto 0);
     );
-end Register;
+end Reg;
 
-architecture Behavior of Register is
+architecture Behavior of Reg is
 begin
 	process (Clock, AsyncReset)
     begin
@@ -22,9 +23,9 @@ begin
         elsif rising_edge(Clock) then
             if SyncReset = '1' then
                 DataOut <= (N-1 downto 0 => '0');
-            else
+            elsif Enable = '1' then
                 DataOut <= DataIn
-            end
+            end if;
 		end if;
 	end process;
 end Behavior;
