@@ -1,0 +1,15 @@
+# Compile of lab5part1.vhd was successful.
+vsim work.lab5part1_tb
+# vsim work.lab5part1_tb 
+# Start time: 10:40:38 on Apr 01,2025
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.lab5part1_tb(beh)
+# Loading work.lab5part1(beh)
+# Loading work.dflipflop(behavior)
+add wave *
+run
+quit -sim
+# End time: 10:41:21 on Apr 01,2025, Elapsed time: 0:00:43
+# Errors: 0, Warnings: 2

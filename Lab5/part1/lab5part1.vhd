@@ -1,10 +1,3 @@
---Write a VHDL file that instantiates the 9 flip-flops and specifies the logic expressions 
---that drive the flip-flop input ports.
---Use only simple assignment statements in your VHDL code to specify the logic feeding the flip-flops.
---Note that the one-hot code enables you to derive these expressions by inspection. 
---Use the toggle switch SW0 on the Altera DE1-SOC board as an active-low synchronous reset input for the FSM,
---use SW1 as the w input, and the push button KEY0 as the clock input which is applied manually.
---Use the red LED LEDR9 as the output z, and assign the state flip-flop outputs to the red LEDs LEDR8 to LEDR0
 library ieee;
 use ieee.std_logic_1164.all;
 
@@ -26,30 +19,42 @@ component DFlipFlop is
     );
 end component;
 
-signal ASyncReset, z, w, Clock : std_logic;
-signal Q : std_logic_vector(8 downto 0);
+signal SyncReset, z, w, Clock : std_logic;
+signal y, D_vec : std_logic_vector(8 downto 0);
 
 begin
-	ASyncReset <= not SW(0);
+	SyncReset <= not SW(0);
 	Clock <= KEY(0);
 	w <= SW(1);
-	z <= Q(4) or Q(8);
-	LEDR(8 downto 0) <= Q;
+	z <= y(4) or y(8);
+	LEDR(8 downto 0) <= y;
 	LEDR(9) <= z;
+
+	--D_vec(0) <= not y(1) and not y(2) and not y(3) and not y(4) and not y(5) and not y(6) and not y(7) and not y(8);
+	A : DFlipFlop port map (D => SyncReset, Clock => Clock, syncReset => '0', Q => y(0));
+
+	D_vec(1) <= (y(0) and not w) or (y(5) and not w) or (y(6) and not w) or (y(7) and not w) or (y(8) and not w);
+	B : DFlipFlop port map (D => D_vec(1), Clock => Clock, syncReset => SyncReset, Q => y(1));
 	
-	A : DFlipFlop port map (D => Q(1) and Q(2) and Q(3) and Q(4) and Q(5) and Q(6) and Q(7) and Q(8),
-								Clock => Clock, AsyncReset => ASyncReset, Q => Q(0));
-	B : DFlipFlop port map (
-		D => (Q(0) and not w) or (Q(5) and not w) or (Q(6) and not w) or (Q(7) and not w) or (Q(8) and not w),
-								Clock => Clock, AsyncReset => ASyncReset, Q => Q(1));
-	C : DFlipFlop port map (D => Q(1) and not w, Clock => Clock, AsyncReset => ASyncReset, Q => Q(2));
-	D : DFlipFlop port map (D => Q(2) and not w, Clock => Clock, AsyncReset => ASyncReset, Q => Q(3));
-	E : DFlipFlop port map (D => (Q(3) and not w) or (Q(4) and not w), Clock => Clock, AsyncReset => ASyncReset, Q => Q(4));
-	F : DFlipFlop port map (
-		D => (Q(0) and w) or (Q(1) and w) or (Q(2) and w) or (Q(3) and w) or (Q(4) and w), 
-								Clock => Clock, AsyncReset => ASyncReset, Q => Q(5));
-	G : DFlipFlop port map (D => Q(5) and w, Clock => Clock, AsyncReset => ASyncReset, Q => Q(6));
-	H : DFlipFlop port map (D => Q(6) and w, Clock => Clock, AsyncReset => ASyncReset, Q => Q(7));
-	I : DFlipFlop port map (D => (Q(7) and w) or (Q(8) and w), Clock => Clock, AsyncReset => ASyncReset, Q => Q(8));
+	D_vec(2) <= y(1) and not w;
+	C : DFlipFlop port map (D => D_vec(2), Clock => Clock, syncReset => SyncReset, Q => y(2));
+
+	D_vec(3) <= y(2) and not w;
+	D : DFlipFlop port map (D => D_vec(3), Clock => Clock, syncReset => SyncReset, Q => y(3));
+	
+	D_vec(4) <= (y(3) and not w) or (y(4) and not w);
+	E : DFlipFlop port map (D => D_vec(4), Clock => Clock, syncReset => SyncReset, Q => y(4));
+
+	D_vec(5) <= (y(0) and w) or (y(1) and w) or (y(2) and w) or (y(3) and w) or (y(4) and w);
+	F : DFlipFlop port map (D => D_vec(5), Clock => Clock, syncReset => SyncReset, Q => y(5));
+
+	D_vec(6) <= y(5) and w;
+	G : DFlipFlop port map (D => D_vec(6), Clock => Clock, syncReset => SyncReset, Q => y(6));
+
+	D_vec(7) <= y(6) and w;
+	H : DFlipFlop port map (D => D_vec(7), Clock => Clock, syncReset => SyncReset, Q => y(7));
+	
+	D_vec(8) <= (y(7) and w) or (y(8) and w);
+	I : DFlipFlop port map (D => D_vec(8), Clock => Clock, syncReset => SyncReset, Q => y(8));
 	
 end architecture;
