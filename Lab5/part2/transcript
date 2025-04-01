@@ -1,0 +1,49 @@
+# Compile of part2.vhd was successful.
+# Compile of part2_tb.vhd was successful.
+# Compile of flipflop.vhd was successful.
+# 3 compiles, 0 failed with no errors.
+vsim work.part2_tb
+# vsim work.part2_tb 
+# Start time: 10:50:25 on Apr 01,2025
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.part2_tb(beh)
+# Loading work.part2(beh)
+# Loading work.dflipflop(behavior)
+add wave *
+run
+quit -sim
+# End time: 10:52:36 on Apr 01,2025, Elapsed time: 0:02:11
+# Errors: 0, Warnings: 6
+vsim work.part2_tb
+# vsim work.part2_tb 
+# Start time: 10:52:37 on Apr 01,2025
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.part2_tb(beh)
+# Loading work.part2(beh)
+# Loading work.dflipflop(behavior)
+add wave *
+run
+quit -sim
+# End time: 10:58:22 on Apr 01,2025, Elapsed time: 0:05:45
+# Errors: 0, Warnings: 1
+# Compile of part2.vhd failed with 2 errors.
+# Compile of part2_tb.vhd was successful.
+# Compile of flipflop.vhd was successful.
+# 3 compiles, 1 failed with 2 errors.
+vsim work.part2_tb
+# vsim work.part2_tb 
+# Start time: 10:58:29 on Apr 01,2025
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.part2_tb(beh)
+# Loading work.part2(beh)
+# Loading work.dflipflop(behavior)
+quit -sim
+# End time: 10:58:40 on Apr 01,2025, Elapsed time: 0:00:11
+# Errors: 0, Warnings: 2
+# Compile of part2.vhd failed with 2 errors.
