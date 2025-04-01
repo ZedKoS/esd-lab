@@ -8,8 +8,6 @@ output_files/
 simulation/
 greybox_tmp/
 *.vwf
-*.qsf
-*.qpf
 *.qdf
 *.qws
 *.vhd.bak
