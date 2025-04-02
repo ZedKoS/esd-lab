@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity Reg is
-    generic map (N : natural)
+    generic (N : natural);
 	port
     (
         DataIn : in std_logic_vector(N-1 downto 0);
@@ -10,7 +10,7 @@ entity Reg is
         Clock : in std_logic;
         AsyncReset : in std_logic := '0';
         SyncReset  : in std_logic := '0';
-		DataOut : out std_logic_vector(N-1 downto 0);
+		DataOut : out std_logic_vector(N-1 downto 0)
     );
 end Reg;
 
@@ -24,7 +24,7 @@ begin
             if SyncReset = '1' then
                 DataOut <= (N-1 downto 0 => '0');
             elsif Enable = '1' then
-                DataOut <= DataIn
+                DataOut <= DataIn;
             end if;
 		end if;
 	end process;
