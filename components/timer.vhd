@@ -28,17 +28,17 @@ architecture Behavior of timer is
         );			
 	end component;
 
-    entity Reg is
-        generic map (N : natural)
+    component Reg is
+        generic (N : natural);
         port
         (
             DataIn : in std_logic_vector(N-1 downto 0);
             Clock : in std_logic;
             AsyncReset : in std_logic := '0';
             SyncReset  : in std_logic := '0';
-            DataOut : out std_logic_vector(N-1 downto 0);
+            DataOut : out std_logic_vector(N-1 downto 0)
         );
-    end Reg;
+    end component;
 
     signal loaded_end_count : unsigned(N-1 downto 0);
 
