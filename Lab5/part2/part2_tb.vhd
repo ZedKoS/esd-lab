@@ -16,12 +16,15 @@ signal Clock, Reset, w : std_logic;
 signal leds : std_logic_vector(9 downto 0);
 
 begin
-	Clock_process : process
-			begin
-				Clock <= '0', '1' after 5 ns;
-				wait for 10 ns;
-			end process;
+	Clock_process:
+	process
+	begin
+		Clock <= '0', '1' after 5 ns;
+		wait for 10 ns;
+	end process;
+
 	Reset <= '0', '1' after 13 ns;
 	w <= '0', '1' after 14 ns, '0' after 17 ns, '1' after 71 ns, '0' after 98 ns;
-	dut : part2 port map (SW(0) => Reset, SW(1) => w, KEY(0) => Clock, LEDR => leds);
+
+	DUT : part2 port map (SW(0) => Reset, SW(1) => w, KEY(0) => Clock, LEDR => leds);
 end architecture;
