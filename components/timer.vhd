@@ -34,6 +34,7 @@ architecture Behavior of timer is
         (
             DataIn : in std_logic_vector(N-1 downto 0);
             Clock : in std_logic;
+			Enable : in std_logic;
             AsyncReset : in std_logic := '0';
             SyncReset  : in std_logic := '0';
             DataOut : out std_logic_vector(N-1 downto 0)
@@ -45,9 +46,10 @@ architecture Behavior of timer is
 begin
     SyncEndCount: Reg
         generic map (N => N)
-        port map (DataIn => EndCount, Enable => LoadEndCount, Clock => Clock, DataOut => loaded_end_count);
+        port map (Enable => LoadEndCount, Clock => Clock,
+			DataIn => std_logic_vector(EndCount), std_logic_vector(DataOut) => loaded_end_count);
 
-    Done <= '1' when Count = EndCount else '0';
+    Done <= '1' when Count = loaded_end_count else '0';
     Wrap <= Done and Enable;
 
     Counter: CounterN
