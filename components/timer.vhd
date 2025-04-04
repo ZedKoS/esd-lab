@@ -47,7 +47,7 @@ begin
     SyncEndCount: Reg
         generic map (N => N)
         port map (Enable => LoadEndCount, Clock => Clock,
-			DataIn => std_logic_vector(EndCount), std_logic_vector(DataOut) => loaded_end_count);
+			DataIn => std_logic_vector(EndCount), unsigned(DataOut) => loaded_end_count);
 
     Done <= '1' when Count = loaded_end_count else '0';
     Wrap <= Done and Enable;
