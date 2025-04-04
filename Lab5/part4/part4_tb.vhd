@@ -33,9 +33,9 @@ architecture Behavior of part4_tb is
 begin
     key(0) <= not sync_reset;
     DUT: part4
-	generic map (TICK_TIME => 50_000)
-	port map (CLOCK_50 => clock, KEY => key,
-        HEX0 => hexs(0), HEX1 => hexs(1), HEX2 => hexs(2), HEX3 => hexs(3), HEX4 => hexs(4), HEX5 => hexs(5));
+        generic map (TICK_TIME => 50)
+        port map (CLOCK_50 => clock, KEY => key,
+            HEX0 => hexs(0), HEX1 => hexs(1), HEX2 => hexs(2), HEX3 => hexs(3), HEX4 => hexs(4), HEX5 => hexs(5));
 
     CLOCK_PROC: process
     begin
@@ -43,5 +43,5 @@ begin
         wait for 20 ns;
     end process CLOCK_PROC;
 
-    sync_reset <= '1', '0' after 15 ns, '1' after 12 us;
+    sync_reset <= '0', '1' after 7 ns, '0' after 25 ns, '1' after 12 us, '0' after 13 us;
 end architecture Behavior;

@@ -5,15 +5,14 @@ entity part3_tb is
 end entity;
 
 architecture Beh of part3_tb is
+	component part3 is
+		port (SW : in std_logic_vector(1 downto 0); --sw0 for reset_n, sw1 for input
+				KEY : in std_logic_vector(0 downto 0); --key0 for manual clock
+				LEDR : out std_logic_vector(9 downto 0)); --ledr9 for output, ledr0-8 for state output
+	end component;
 
-component part3 is
-	port (SW : in std_logic_vector(1 downto 0); --sw0 for reset_n, sw1 for input
-			KEY : in std_logic_vector(0 downto 0); --key0 for manual clock
-			LEDR : out std_logic_vector(9 downto 0)); --ledr9 for output, ledr0-8 for state output
-end component;
-
-signal Clock, Reset, w : std_logic;
-signal leds : std_logic_vector(9 downto 0);
+	signal Clock, Reset, w : std_logic;
+	signal leds : std_logic_vector(9 downto 0);
 
 begin
 	Clock_process:
