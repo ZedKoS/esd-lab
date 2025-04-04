@@ -47,6 +47,10 @@ architecture Behaviour of part4 is
     -- impulso inviato una volta al secondo dal timer
     signal tick : std_logic;
 
+    type tape_t is array(natural range <>) of std_logic_vector;
+    signal letters_in : tape_t(5 downto 0)(0 to 6);
+    signal letters_out : tape_t(5 downto 0)(0 to 6);
+
 begin
     SyncReset <= not KEY(0);
 
@@ -78,5 +82,42 @@ begin
             end if;
         end if;
     end process;
-    
+
+    STATE_COMB: process(state, letters_out(5))
+    begin
+        case state is
+            when WR_0 =>
+                letters_in(0) <= "1001000"; -- H
+            when WR_1 =>
+                letters_in(0) <= "0110000"; -- E
+            when WR_2 | WR_3 =>
+                letters_in(0) <= "1110001"; -- L
+            when WR_4 =>
+                letters_in(0) <= "0000001"; -- O
+            when WR_5 =>
+                letters_in(0) <= "1111111"; -- _
+            when SCROLL =>
+                letters_in(0) <= letters_out(5);
+        end case;
+    end process;
+
+    REGS:
+    for i in 0 to 5 generate
+        LETTERS: Reg
+            generic map (N => 7)
+            port map (Enable => tick, Clock => CLOCK_50, SyncReset => SyncReset, AsyncReset => '0',
+                DataIn => letters_in(i), DataOut => letters_out(i));
+        
+        CONNECT_REGS:
+        if i /= 5 generate
+            letters_in(i + 1) <= letters_out(i);
+        end generate;
+    end generate;
+
+    HEX0 <= letters_out(0);
+    HEX1 <= letters_out(1);
+    HEX2 <= letters_out(2);
+    HEX3 <= letters_out(3);
+    HEX4 <= letters_out(4);
+    HEX5 <= letters_out(5);
 end architecture Behaviour;
