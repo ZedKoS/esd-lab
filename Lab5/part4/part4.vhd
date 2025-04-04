@@ -3,6 +3,9 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity part4 is
+    -- parametro utile per le simulazioni => posso usare un TICK_TIME più basso
+    generic (TICK_TIME : natural := 50_000_000);
+
     port (
         CLOCK_50 : in std_logic;
         -- KEY[0]: active-low sync reset
@@ -57,7 +60,7 @@ begin
     ONE_SEC_TIMER: Timer
         generic map (N => 26)
         port map (Enable => '1', Clock => CLOCK_50, AsyncReset => '0',
-            EndCount => to_unsigned(50_000_000, 26), LoadEndCount => SyncReset,
+            EndCount => to_unsigned(TICK_TIME, 26), LoadEndCount => SyncReset,
             Count => open, Done => open, Wrap => tick);
     
     STATE_TABLE: process(state)

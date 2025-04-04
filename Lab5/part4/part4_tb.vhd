@@ -2,11 +2,12 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity part5_tb is
-end entity part5_tb;
+entity part4_tb is
+end entity part4_tb;
 
-architecture Behavior of part5_tb is
-    component part5 is
+architecture Behavior of part4_tb is
+    component part4 is
+        generic (TICK_TIME : natural);
         port (
             CLOCK_50 : in std_logic;
 
@@ -31,7 +32,9 @@ architecture Behavior of part5_tb is
 
 begin
     key(0) <= not sync_reset;
-    DUT: part5 port map (CLOCK_50 => clock, KEY => key,
+    DUT: part4
+	generic map (TICK_TIME => 50_000)
+	port map (CLOCK_50 => clock, KEY => key,
         HEX0 => hexs(0), HEX1 => hexs(1), HEX2 => hexs(2), HEX3 => hexs(3), HEX4 => hexs(4), HEX5 => hexs(5));
 
     CLOCK_PROC: process
@@ -40,5 +43,5 @@ begin
         wait for 20 ns;
     end process CLOCK_PROC;
 
-    sync_reset <= '1', '0' after 15 ns, '1' after 12000 ms;
+    sync_reset <= '1', '0' after 15 ns, '1' after 12 us;
 end architecture Behavior;
