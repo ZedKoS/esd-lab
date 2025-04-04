@@ -42,19 +42,22 @@ architecture Behavior of timer is
     end component;
 
     signal loaded_end_count : unsigned(N-1 downto 0);
+    signal restart : std_logic;
 
 begin
     SyncEndCount: Reg
         generic map (N => N)
         port map (Enable => LoadEndCount, Clock => Clock,
+            SyncReset => '0', AsyncReset => AsyncReset,
 			DataIn => std_logic_vector(EndCount), unsigned(DataOut) => loaded_end_count);
 
     Done <= '1' when Count = loaded_end_count else '0';
     Wrap <= Done and Enable;
+    restart <= Wrap or LoadEndCount;
 
     Counter: CounterN
         generic map (N => N)
         port map (Enable => Enable, Clock => Clock, AsyncReset => AsyncReset,
-            Load => Wrap, DataLoad => to_unsigned(0, N), Overflow => open, Count => Count);
+            Load => restart, DataLoad => to_unsigned(0, N), Overflow => open, Count => Count);
 
 end architecture Behavior;
