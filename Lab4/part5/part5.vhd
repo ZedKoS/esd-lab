@@ -28,6 +28,7 @@ architecture Behavior of part5 is
         port (
             Enable, Clock, AsyncReset : in std_logic;
             EndCount : in unsigned(N-1 downto 0);
+            LoadEndCount : in std_logic;
             Count : buffer unsigned(N-1 downto 0);
             Done : buffer std_logic;
             Wrap : buffer std_logic
@@ -41,10 +42,21 @@ architecture Behavior of part5 is
         );
     end component;
 
+    component DFlipFlop is
+        generic (NEGATED : boolean := false);
+        port
+        (
+            D, Clock   : in std_logic;
+            AsyncReset : in std_logic := '0';
+            SyncReset  : in std_logic := '0';
+            Q : out std_logic
+        );
+    end component;
+
     type state_t is (WAITING_LED, TIMING, FREEZE);
     signal state : state_t;
     
-    signal async_reset, react : std_logic;
+    signal async_reset, reset_flag, react : std_logic;
     signal ms_timer_done, led_timer_done, reaction_timer_done : std_logic;
 
     signal enable_digit : std_logic_vector(0 to 4);
@@ -98,16 +110,23 @@ begin
         end case;
     end process;
 
+    ResetReg: DFlipFlop
+        generic map (NEGATED => true)
+        port map (Clock => CLOCK_50, SyncReset => '0', AsyncReset => async_reset, 
+            D => '0', Q => reset_flag);
+
     -- dà un impulso ogni ms
     MsTimer: timer
         generic map (N => 16)
         port map (Enable => '1', Clock => CLOCK_50, AsyncReset => async_reset,
-            EndCount => to_unsigned(50_000, 16), Count => open, Done => open, Wrap => ms_timer_done);
+            EndCount => to_unsigned(50_000, 16), LoadEndCount => reset_flag,
+            Count => open, Done => open, Wrap => ms_timer_done);
     
     LEDTimer: timer
         generic map (N => SW'length)
         port map (Enable => enable_led_timer, Clock => CLOCK_50, AsyncReset => async_reset,
-            EndCount => unsigned(SW), Count => open, Done => open, Wrap => led_timer_done);
+            EndCount => unsigned(SW), LoadEndCount => reset_flag,
+            Count => open, Done => open, Wrap => led_timer_done);
     
     enable_digit(0) <= enable_digit_timer;
 
@@ -116,7 +135,8 @@ begin
         DigitTimer: Timer
             generic map (N => 4)
             port map (Enable => enable_digit(i), Clock => CLOCK_50, AsyncReset => async_reset,
-                EndCount => to_unsigned(9, 4), std_logic_vector(Count) => decimal_digits(4*i+3 downto 4*i),
+                EndCount => to_unsigned(9, 4), LoadEndCount => reset_flag,
+                std_logic_vector(Count) => decimal_digits(4*i+3 downto 4*i),
                 Done => open, Wrap => enable_digit(i+1));
     end generate;
 
