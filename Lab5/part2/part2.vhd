@@ -31,8 +31,8 @@ begin
 	LEDR(9) <= z;
 
 	A : DFlipFlop port map (D => '1', Clock => Clock, syncReset => syncreset, Q => y(0));
-
-	y_next(1) <= (y(0) and not w) xor ((y(1) or y(2) or y(3) or y(4)) or ((y(5) and not w) or (y(6) and not w) or (y(7) and not w) or (y(8) and not w)));
+	
+	y_next(1) <= y(0) and not w and (not (y(1) or y(2) or y(3) or y(4)) or y(5) or y(6) or y(7) or y(8));
 	B : DFlipFlop port map (D => y_next(1), Clock => Clock, syncReset => SyncReset, Q => y(1));
 	
 	y_next(2) <= y(1) and not w;
@@ -44,7 +44,7 @@ begin
 	y_next(4) <= (y(3) and not w) or (y(4) and not w);
 	E : DFlipFlop port map (D => y_next(4), Clock => Clock, syncReset => SyncReset, Q => y(4));
 
-	y_next(5) <= (y(0) and w) xor ((y(5) or y(6) or y(7) or y(8)) or ((y(1) and w) or (y(2) and w) or (y(3) and w) or (y(4) and w)));
+	y_next(5) <= y(0) and w and (not (y(5) or y(6) or y(7) or y(8)) or y(1) or y(2) or y(3) or y(4));
 	F : DFlipFlop port map (D => y_next(5), Clock => Clock, syncReset => SyncReset, Q => y(5));
 
 	y_next(6) <= y(5) and w;
