@@ -90,15 +90,15 @@ begin
     begin
         case state is
             when WR_0 =>
-                letters_in(0) <= "1001000"; -- H
+                letters_in(0) <= "0110111"; -- H
             when WR_1 =>
-                letters_in(0) <= "0110000"; -- E
+                letters_in(0) <= "1001111"; -- E
             when WR_2 | WR_3 =>
-                letters_in(0) <= "1110001"; -- L
+                letters_in(0) <= "0001110"; -- L
             when WR_4 =>
-                letters_in(0) <= "0000001"; -- O
+                letters_in(0) <= "1111110"; -- O
             when WR_5 =>
-                letters_in(0) <= "1111111"; -- _
+                letters_in(0) <= "0000000"; -- _
             when SCROLL =>
                 letters_in(0) <= letters_out(5);
         end case;
@@ -117,10 +117,10 @@ begin
         end generate;
     end generate;
 
-    HEX0 <= letters_out(0);
-    HEX1 <= letters_out(1);
-    HEX2 <= letters_out(2);
-    HEX3 <= letters_out(3);
-    HEX4 <= letters_out(4);
-    HEX5 <= letters_out(5);
+    HEX0 <= not letters_out(0);
+    HEX1 <= not letters_out(1);
+    HEX2 <= not letters_out(2);
+    HEX3 <= not letters_out(3);
+    HEX4 <= not letters_out(4);
+    HEX5 <= not letters_out(5);
 end architecture Behaviour;
