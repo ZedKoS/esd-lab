@@ -1,0 +1,59 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+-- Register-file memory
+-- Sync write, Async read
+entity Memory is
+  generic (
+    WORD_SIZE : natural;
+    ADDRESS_SIZE : natural
+  );
+  port (
+    Clock : in std_logic;
+    ChipSelect : in std_logic;
+
+    Read  : in std_logic;
+    nWrite : in std_logic;
+
+    DataIn  : in  std_logic_vector(WORD_SIZE-1 downto 0);
+    DataOut : out std_logic_vector(WORD_SIZE-1 downto 0);
+    Address : in  std_logic_vector(ADDRESS_SIZE-1 downto 0)
+  );
+end entity;
+
+architecture Behavior of Memory is
+    component Reg is
+        generic (N : natural);
+        port
+        (
+            Enable : in std_logic;
+            Clock : in std_logic;
+            AsyncReset : in std_logic := '0';
+            SyncReset  : in std_logic := '0';
+            DataIn : in std_logic_vector(N-1 downto 0);
+            DataOut : out std_logic_vector(N-1 downto 0)
+        );
+    end component;
+
+    type reg_file_t is array(0 to 2**ADDRESS_SIZE-1) of std_logic_vector(WORD_SIZE-1 downto 0);
+    signal reg_file : reg_file_t;
+
+begin
+    MEM: process(Clock, Read, ChipSelect)
+        variable addr : integer;
+    begin
+        addr := natural(unsigned(Address));
+
+        if Read = '1' and ChipSelect = '1' then
+            DataOut <= reg_file(addr);
+        end if;
+
+        if rising_edge(Clock) then
+            if nWrite = '0' and ChipSelect = '1' then
+                reg_file(addr) <= DataIn;
+            end if;
+        end if;
+    end process MEM;
+end architecture;
+

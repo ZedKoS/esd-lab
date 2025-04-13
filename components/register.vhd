@@ -1,15 +1,17 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+-- Simple register
+
 entity Reg is
     generic (N : natural);
 	port
     (
-        DataIn : in std_logic_vector(N-1 downto 0);
         Enable : in std_logic;
         Clock : in std_logic;
         AsyncReset : in std_logic := '0';
         SyncReset  : in std_logic := '0';
+        DataIn : in std_logic_vector(N-1 downto 0);
 		DataOut : out std_logic_vector(N-1 downto 0)
     );
 end Reg;
