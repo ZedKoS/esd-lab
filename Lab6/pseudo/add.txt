@@ -1,0 +1,71 @@
+i   : bitv(10)                      # REG
+c   : bitv(5+7)   = bitv(12)        # REG
+acc : bitv(5+7+1) = bitv(13)        # REG
+p : bitv(10) # 3 bit meno di acc    # SIGNAL
+check : bit                         # SIGNAL
+
+start:
+    i <- 0
+
+loop:
+
+if turn = 1 goto turn 1
+
+# -- turn = 0: a = 18/8, b = 14/8 -- #
+turn0:
+    # a: *18 = 16+2
+    c <- 16*E[i] + 2*E[i]
+    acc <- c
+
+# b: *14 = 16-2
+    c <- 8*E[i-1] - E[i-1]
+    acc <- acc + c
+
+goto calc_power
+
+# -- turn = 1: a = 10/8, b = 7/8 -- #
+turn1:
+    # a: *10 = 8+2
+    c <- 8*E[i] + 2*E[i]
+    acc <- acc + c
+
+# b: *7
+    c <- 8*E[i-1] - E[i-1]
+    acc <- acc + c
+
+calc_power:
+    # p <- acc / 8
+    p <- acc[3..]
+
+    # gli ultimi 3 bit (2 extra + segno) devono essere uguali
+    # p.([9] == [8] == [7])
+    # check <- p[9] = p[8] = [7]
+    check <- (not (p[9] xor p[7])) and (not (p[8] xor p[7]))
+
+    if check goto no_alarm
+alarm:
+    POWER_ALARM <- 1
+    POWER[7] = p[7]
+    POWER[0..=6] = (others => not p[7])
+    
+    goto inc_i
+
+no_alarm:
+    POWER <- p[0..=7]
+
+inc_i:
+    # nell'ASM chart il controllo va dopo il prossimo stato
+    if i = 1023 goto end 
+    i <- i + 1
+
+goto loop
+
+end:
+# fine
+
+-----
+
+## Ingressi ADDER: A, B
+## selezioniamo l'ingresso con un mux con selettore da 2 bit
+A: 16*E[i], 8*E[i-1], 8*E[i]
+B: E[i], -E[i-1], 2*E[i]
