@@ -1,3 +1,8 @@
+# Lab 6: sistema di controllo
+
+## Componenti esterni VHDL
+- `components/`: `memory.vhd`
+
 ## Sequenza di azioni ad alto livello
 1. Aspettare segnale di `Start 0 -> 1`
 2. Riempire `MEM_A` per intero (iniziare l'analisi solo successivamente)

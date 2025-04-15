@@ -25,19 +25,6 @@ entity Memory is
 end entity;
 
 architecture Behavior of Memory is
-    component Reg is
-        generic (N : natural);
-        port
-        (
-            Enable : in std_logic;
-            Clock : in std_logic;
-            AsyncReset : in std_logic := '0';
-            SyncReset  : in std_logic := '0';
-            DataIn : in std_logic_vector(N-1 downto 0);
-            DataOut : out std_logic_vector(N-1 downto 0)
-        );
-    end component;
-
     type reg_file_t is array(0 to 2**ADDRESS_SIZE-1) of std_logic_vector(WORD_SIZE-1 downto 0);
     signal reg_file : reg_file_t;
 

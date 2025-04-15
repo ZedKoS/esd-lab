@@ -67,5 +67,5 @@ end:
 
 ## Ingressi ADDER: A, B
 ## selezioniamo l'ingresso con un mux con selettore da 2 bit
-A: 16*E[i], 8*E[i-1], 8*E[i]
-B: E[i], -E[i-1], 2*E[i]
+A: 16*E[i], 8*E[i-1], 8*E[i], acc
+B: E[i], -E[i-1], 2*E[i], c
