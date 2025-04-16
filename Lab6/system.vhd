@@ -27,80 +27,32 @@ architecture Behavior of ControlSystem is
   signal En_AddrCounter, SyncReset_AddrCounter, AddrCounter_Done : std_logic;
   signal Address : std_logic_vector(WORD_SIZE-1 downto 0);
 
-  signal Start_Filter, Filter_Done : std_logic;
-
-  type state_t is (IDLE, FILL_MEM_A, FILTER, FREEZE);
-  signal state : state_t;
-  
 begin
-
-  -- STATES
-
-  STATE_TRANSITION: process(Clock, AsyncReset)
-  begin
-    if AsyncReset = '1' then
-      state <= IDLE;
-
-    elsif rising_edge(Clock) then
-      case state is
-        when IDLE =>
-          if Start = '1' then
-            state <= FILL_MEM_A;
-          end if;
-
-        when FILL_MEM_A =>
-          if AddrCounter_Done = '1' then
-            state <= FILTER;
-          end if;
-
-        when FILTER =>
-          if Filter_Done = '1' then
-            state <= FREEZE;
-          end if;
-
-        when FREEZE =>
-          if Start = '0' then
-            state <= IDLE;
-          end if;
-        
-        when others =>
-          state <= IDLE;
-      end case;
-    end if;
-  end process STATE_TRANSITION;
-
-  STATE_CONTROL: process(state)
-  begin
-    CS_A <= '0'; CS_B <= '0';
-    Read_A <= '0'; Read_B <= '0';
-    nWrite_A <= '1'; nWrite_B <= '1';
-
-    En_AddrCounter <= '0'; SyncReset_AddrCounter <= '0';
-    Start_Filter <= '0';
-    Done <= '0';
-
-    case state is
-      when IDLE =>
-        SyncReset_AddrCounter <= '1';
-
-      when FILL_MEM_A =>
-        CS_A <= '1';
-        nWrite_A <= '0';
-        En_AddrCounter <= '1';
-
-      when FILTER =>
-        Start_Filter <= '1';
-
-        CS_A <= '1';
-        Read_A <= '1';
-
-        CS_B <= '1';
-        nWrite_B <= '0';
-      
-      when FREEZE =>
-        Done <= '1';
-    end case;
-  end process STATE_CONTROL;
+  -- CONTROL UNIT
+  CONTROL_UNIT: entity work.ControlUnit
+  generic map (
+    WORD_SIZE => WORD_SIZE
+  )
+  port map (
+    Clock                 => Clock,
+    AsyncReset            => AsyncReset,
+    Start                 => Start,
+    Done                  => Done,
+    CS_A                  => CS_A,
+    CS_B                  => CS_B,
+    Read_A                => Read_A,
+    nWrite_A              => nWrite_A,
+    Read_B                => Read_B,
+    nWrite_B              => nWrite_B,
+    Error                 => signed(A_DataOut(WORD_SIZE-1 downto 1)),
+    Turn                  => A_DataOut(0),
+    DataIn_B              => DataIn_B,
+    En_AddrCounter        => En_AddrCounter,
+    SyncReset_AddrCounter => SyncReset_AddrCounter,
+    AddrCounter_Done      => AddrCounter_Done,
+    Address               => Address,
+    PowerAlarm            => PowerAlarm
+  );
 
   -- DATA PATH
 
@@ -131,18 +83,6 @@ begin
     DataIn     => DataIn,
     DataOut    => A_DataOut,
     Address    => Address
-  );
-
-  FILTER: entity work.Filter
-  generic map (
-    WORD_SIZE => WORD_SIZE
-  )
-  port map (
-    Start      => Start_Filter,
-    Done       => Filter_Done,
-    A_DataOut  => A_DataOut,
-    DataIn_B   => DataIn_B,
-    PowerAlarm => PowerAlarm
   );
   
   MEM_B: entity work.Memory
