@@ -42,4 +42,41 @@ begin
     DataOut    => W
   );
 
+  -- STATES
+
+  STATE_TRANSITION: process(Clock, AsyncReset)
+  begin
+    if AsyncReset = '1' then
+      state <= IDLE;
+
+    elsif rising_edge(Clock) then
+      case state is
+        when IDLE =>
+          if Start = '1' then
+            state <= ADD_A1;
+          end if;
+
+        when ADD_A1 =>
+          state <= ADD_A2;
+
+        when ADD_A2 =>
+          state <= ADD_B1;
+
+        when ADD_B1 =>
+          state <= ADD_B2;
+        
+        when ADD_B2 =>
+          state <= CONVERT;
+        
+        when CONVERT =>
+          state <= FINISHED;
+        
+        when FINISHED =>
+          if Start = '0' then
+            state <= IDLE;
+          end if;
+      end case;
+    end if;
+  end process STATE_TRANSITION;
+
 end architecture;
