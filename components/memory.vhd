@@ -33,8 +33,6 @@ architecture Behavior of Memory is
 begin
     addr <= natural(unsigned(Address));
 
-    -- TODO: che valore dare in uscita quando non sto leggendo?
-    -- secondo il testo, l'uscita dev'essere combinatoria
     DataOut <= reg_file(addr) when Read = '1' and ChipSelect = '1'
         else (WORD_SIZE-1 downto 0 => '0');
 

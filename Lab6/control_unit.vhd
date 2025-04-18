@@ -28,11 +28,10 @@ entity ControlUnit is
 end entity;
 
 architecture Behavior of ControlUnit is
-  type state_t is (IDLE, FILL_MEM_A, FILTER, FREEZE);
+  type state_t is (IDLE, FILL_MEM_A, FILTER, WRITE_MEM_B, FREEZE);
   signal state : state_t;
 
-  signal Start_Filter : std_logic;
-  signal Filter_Done  : std_logic;
+  signal Start_Filter, SyncReset_Filter, Filter_Done  : std_logic;
 
 begin
   -- FILTERING
@@ -44,6 +43,7 @@ begin
   port map (
     Clock      => Clock,
     AsyncReset => AsyncReset,
+    SyncReset  => SyncReset_Filter,
     Start      => Start_Filter,
     Done       => Filter_Done,
     Error      => Error,
@@ -73,7 +73,14 @@ begin
 
         when FILTER =>
           if Filter_Done = '1' then
+            state <= WRITE_MEM_B;
+          end if;
+        
+        when WRITE_MEM_B =>
+          if AddrCounter_Done = '1' then
             state <= FREEZE;
+          else
+            state <= FILTER;
           end if;
 
         when FREEZE =>
@@ -87,39 +94,49 @@ begin
     end if;
   end process STATE_TRANSITION;
 
-  STATE_CONTROL: process(state, Filter_Done)
+  STATE_CONTROL: process(state)
   begin
+    SyncReset_AddrCounter <= '0';
+    SyncReset_Filter <= '0';
+
     CS_A <= '0'; CS_B <= '0';
     Read_A <= '0'; Read_B <= '0';
     nWrite_A <= '1'; nWrite_B <= '1';
 
-    En_AddrCounter <= '0'; SyncReset_AddrCounter <= '0';
+    En_AddrCounter <= '0';
     Start_Filter <= '0';
     Done <= '0';
 
     case state is
       when IDLE =>
         SyncReset_AddrCounter <= '1';
+        SyncReset_Filter <= '1';
 
       when FILL_MEM_A =>
         CS_A <= '1';
         nWrite_A <= '0';
         En_AddrCounter <= '1';
 
+      -- il contatore è già azzerato a causa dell'overflow
       when FILTER =>
         Start_Filter <= '1';
 
-        -- il contatore è già azzerato a causa dell'overflow
-        En_AddrCounter <= Filter_Done;
-
         CS_A <= '1';
         Read_A <= '1';
+
+      when WRITE_MEM_B =>
+        -- incrementa il contatore
+        En_AddrCounter <= '1';
+
+        -- riporta il filtro in IDLE
+        Start_Filter <= '0';
 
         CS_B <= '1';
         nWrite_B <= '0';
       
       when FREEZE =>
         Done <= '1';
+
     end case;
   end process STATE_CONTROL;
 end architecture;
