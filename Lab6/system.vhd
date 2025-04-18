@@ -44,8 +44,7 @@ begin
     nWrite_A              => nWrite_A,
     Read_B                => Read_B,
     nWrite_B              => nWrite_B,
-    Error                 => signed(A_DataOut(WORD_SIZE-1 downto 1)),
-    Turn                  => A_DataOut(0),
+    A_DataOut             => A_DataOut,
     DataIn_B              => DataIn_B,
     En_AddrCounter        => En_AddrCounter,
     SyncReset_AddrCounter => SyncReset_AddrCounter,
@@ -64,10 +63,10 @@ begin
     Enable     => En_AddrCounter,
     Clock      => Clock,
     AsyncReset => AsyncReset,
-    DataLoad   => unsigned(0, WORD_SIZE),
+    DataLoad   => to_unsigned(0, WORD_SIZE),
     Load       => SyncReset_AddrCounter,
     Overflow   => AddrCounter_Done,
-    Count      => Address
+    std_logic_vector(Count) => Address
   );
 
   MEM_A: entity work.Memory

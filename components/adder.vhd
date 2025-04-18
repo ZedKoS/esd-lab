@@ -18,9 +18,11 @@ entity Adder is
 end entity;
 
 architecture Behavior of Adder is
-    signal result : unsigned(N downto 0);
+  signal result : unsigned(N downto 0);
+  signal CarryInNum : std_logic_vector(N downto 0);
 begin
-    result <= resize(A, N+1) + resize(B, N+1) + to_unsigned(to_integer(CarryIn), N+1);
-    Sum <= result(N-1 downto 0);
-    CarryOut <= result(N);
+  CarryInNum <= (0 => CarryIn, others => '0');
+  result <= resize(A, N+1) + resize(B, N+1) + unsigned(CarryInNum);
+  Sum <= result(N-1 downto 0);
+  CarryOut <= result(N);
 end architecture;

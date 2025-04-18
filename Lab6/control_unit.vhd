@@ -15,9 +15,8 @@ entity ControlUnit is
     CS_A, CS_B : out std_logic;
     Read_A, nWrite_A, Read_B, nWrite_B: out std_logic;
 
-    Error : in signed(WORD_SIZE-1 downto 0); 
-    Turn  : in std_logic;
-    DataIn_B : out std_logic_vector(WORD_SIZE-1 downto 0);
+    A_DataOut : in  std_logic_vector(WORD_SIZE-1 downto 0); 
+    DataIn_B  : out std_logic_vector(WORD_SIZE-1 downto 0);
 
     En_AddrCounter, SyncReset_AddrCounter : out std_logic;
     AddrCounter_Done : in std_logic;
@@ -36,7 +35,7 @@ architecture Behavior of ControlUnit is
 begin
   -- FILTERING
 
-  FILTER: entity work.Filter
+  FILTER_INST: entity work.Filter
   generic map (
     WORD_SIZE => WORD_SIZE
   )
@@ -46,8 +45,7 @@ begin
     SyncReset  => SyncReset_Filter,
     Start      => Start_Filter,
     Done       => Filter_Done,
-    Error      => Error,
-    Turn       => Turn,
+    A_DataOut  => A_DataOut,
     DataIn_B   => DataIn_B,
     PowerAlarm => PowerAlarm
   );

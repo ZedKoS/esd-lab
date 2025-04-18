@@ -31,7 +31,7 @@ architecture Behavior of Memory is
     signal addr : natural;
 
 begin
-    addr <= natural(unsigned(Address));
+    addr <= to_integer(unsigned(Address));
 
     DataOut <= reg_file(addr) when Read = '1' and ChipSelect = '1'
         else (WORD_SIZE-1 downto 0 => '0');
