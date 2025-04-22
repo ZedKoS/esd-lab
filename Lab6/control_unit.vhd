@@ -20,7 +20,7 @@ entity ControlUnit is
 
     En_AddrCounter, SyncReset_AddrCounter : out std_logic;
     AddrCounter_Done : in std_logic;
-    Address : in std_logic_vector(WORD_SIZE-1 downto 0);
+    -- Address : in std_logic_vector(WORD_SIZE-1 downto 0);
 
     PowerAlarm : out std_logic
   );
@@ -30,7 +30,7 @@ architecture Behavior of ControlUnit is
   type state_t is (IDLE, FILL_MEM_A, FILTER, WRITE_MEM_B, FREEZE);
   signal state : state_t;
 
-  signal Start_Filter, SyncReset_Filter, Filter_Done  : std_logic;
+  signal Start_Filter, Filter_Done  : std_logic;
 
 begin
   -- FILTERING
@@ -42,7 +42,6 @@ begin
   port map (
     Clock      => Clock,
     AsyncReset => AsyncReset,
-    SyncReset  => SyncReset_Filter,
     Start      => Start_Filter,
     Done       => Filter_Done,
     A_DataOut  => A_DataOut,
@@ -95,7 +94,6 @@ begin
   STATE_CONTROL: process(state)
   begin
     SyncReset_AddrCounter <= '0';
-    SyncReset_Filter <= '0';
 
     CS_A <= '0'; CS_B <= '0';
     Read_A <= '0'; Read_B <= '0';
@@ -108,7 +106,6 @@ begin
     case state is
       when IDLE =>
         SyncReset_AddrCounter <= '1';
-        SyncReset_Filter <= '1';
 
       when FILL_MEM_A =>
         CS_A <= '1';

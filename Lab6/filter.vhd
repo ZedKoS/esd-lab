@@ -7,7 +7,7 @@ entity Filter is
     WORD_SIZE : natural
   );
   port (
-    Clock, AsyncReset, SyncReset : in std_logic;
+    Clock, AsyncReset : in std_logic;
 
     Start : in  std_logic;
     Done  : out std_logic;
@@ -15,7 +15,7 @@ entity Filter is
     A_DataOut : in std_logic_vector(WORD_SIZE-1 downto 0);
     DataIn_B  : out std_logic_vector(WORD_SIZE-1 downto 0);
 
-    PowerAlarm : buffer std_logic
+    PowerAlarm : out std_logic
   );
 end entity;
 
@@ -32,10 +32,13 @@ architecture Behavior of Filter is
   signal Load_Error : std_logic;
 
   signal Acc : signed(Error'length+6-1 downto 0);
+  signal Load_Acc : std_logic;
   signal ScaledW : signed(Acc'length-1 downto 0);
 
   signal Sum : signed(Acc'length-1 downto 0);
   signal negate : std_logic;
+
+  signal SyncReset : std_logic;
 
 begin
   -- DATA PATH
@@ -53,7 +56,7 @@ begin
     DataOut    => Data
   );
 
-  Error <= signed(Data(Error'length-1 downto 0));
+  Error <= signed(Data(Data'length-1 downto 1));
   Turn <= Data(0);
 
   ACC_REG: entity work.Reg
@@ -61,12 +64,12 @@ begin
     N => Acc'length
   )
   port map (
-    Enable     => '1',
-    Clock      => Clock,
-    AsyncReset => AsyncReset,
-    SyncReset  => SyncReset,
-    DataIn     => std_logic_vector(Sum),
-    signed(DataOut)    => Acc
+    Enable          => Load_Acc,
+    Clock           => Clock,
+    AsyncReset      => AsyncReset,
+    SyncReset       => SyncReset,
+    DataIn          => std_logic_vector(Sum),
+    signed(DataOut) => Acc
   );
 
   ADDER: entity work.Adder
@@ -74,11 +77,11 @@ begin
     N => Acc'length
   )
   port map (
-    A        => unsigned(Acc),
-    B        => unsigned(ScaledW),
-    CarryIn  => negate,
-    signed(Sum)      => sum,
-    CarryOut => open
+    A           => unsigned(Acc),
+    B           => unsigned(ScaledW),
+    CarryIn     => negate,
+    signed(Sum) => Sum,
+    CarryOut    => open
   );
 
   -- STATES
@@ -121,19 +124,25 @@ begin
     end if;
   end process FILTER_STATE_TRANSITION;
 
-  FILTER_STATE_CONTROL: process(state, Turn)
-    variable p : signed(Acc'length-3-1 downto 0);
+  FILTER_STATE_CONTROL: process(state, Turn, Error, Acc)
+    variable power_raw : signed(Acc'length-3-1 downto 0);
     variable power : signed(WORD_SIZE-1 downto 0);
+    variable overflow_check : std_logic;
   begin
     Load_Error <= '0';
+    Load_Acc <= '0';
     negate <= '0';
+    SyncReset <= '0';
+    ScaledW <= to_signed(0, ScaledW'length);
     Done <= '0';
+    PowerAlarm <= '0';
 
     case state is
       when IDLE =>
-        null;
+        SyncReset <= '1';
       
       when ADD_A1 | ADD_B1 =>
+        Load_Acc <= '1';
         if Turn = '0' then
           ScaledW <= shift_left(resize(Error, ScaledW'length), 4);
         else
@@ -141,6 +150,7 @@ begin
         end if;
 
       when ADD_A2 =>
+        Load_Acc <= '1';
         negate <= '1';
         if Turn = '0' then
           ScaledW <= not(shift_left(resize(Error, ScaledW'length), 1));
@@ -149,18 +159,20 @@ begin
         end if;
       
       when ADD_B2 =>
+        Load_Acc <= '1';
         ScaledW <= shift_left(resize(Error, ScaledW'length), 1);
 
       when SAVE_PREV =>
         Load_Error <= '1';
 
       when CONVERT =>
-        p := resize(shift_right(Acc, 3), p'length);
+        power_raw := resize(shift_right(Acc, 3), power_raw'length);
         
-        PowerAlarm <= (not (p(p'high) xor p(p'high-2))) and (not (p(p'high-1) xor p(p'high-2)));
+        overflow_check := (power_raw(power_raw'high) xor power_raw(power_raw'high-2)) or (power_raw(power_raw'high-1) xor power_raw(power_raw'high-2));
+        PowerAlarm <= overflow_check;
 
-        if PowerAlarm = '1' then
-          if p(p'high) = '0' then
+        if overflow_check = '1' then
+          if power_raw(power_raw'high) = '0' then
             power := to_signed(2**(power'length-1) - 1, power'length);
           else
             power := to_signed(-2**(power'length-1), power'length);
@@ -168,7 +180,7 @@ begin
 
           DataIn_B <= std_logic_vector(power);
         else
-          DataIn_B <= std_logic_vector(resize(p, WORD_SIZE));
+          DataIn_B <= std_logic_vector(resize(power_raw, WORD_SIZE));
         end if;
 
       when FINISHED =>
