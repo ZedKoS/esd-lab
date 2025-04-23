@@ -38,8 +38,10 @@ architecture Behavior of Filter is
   signal Sum : signed(Acc'length-1 downto 0);
   signal negate : std_logic;
 
+  signal Load_PowerAlarm, D_PowerAlarm : std_logic;
+
   signal SyncReset_Acc : std_logic;
-  signal SyncReset_ErrorAndTurnReg : std_logic;
+  signal SyncReset_StateRegs : std_logic;
 
 begin
   -- DATA PATH
@@ -52,7 +54,7 @@ begin
     Enable          => Load_Error,
     Clock           => Clock,
     AsyncReset      => AsyncReset,
-    SyncReset       => SyncReset_ErrorAndTurnReg,
+    SyncReset       => SyncReset_StateRegs,
     DataIn          => A_DataOut(WORD_SIZE-1 downto 1),
     signed(DataOut) => Error
   );
@@ -65,9 +67,22 @@ begin
     Enable     => Load_Turn,
     Clock      => Clock,
     AsyncReset => AsyncReset,
-    SyncReset  => SyncReset_ErrorAndTurnReg,
+    SyncReset  => SyncReset_StateRegs,
     DataIn     => A_DataOut(0 downto 0),
     DataOut(0) => Turn
+  );
+
+  POWERALARM_REG: entity work.Reg
+  generic map (
+    N => 1
+  )
+  port map (
+    Enable     => Load_PowerAlarm,
+    Clock      => Clock,
+    AsyncReset => AsyncReset,
+    SyncReset  => SyncReset_StateRegs,
+    DataIn(0)  => D_PowerAlarm,
+    DataOut(0) => PowerAlarm
   );
 
   ACC_REG: entity work.Reg
@@ -139,7 +154,7 @@ begin
     end if;
   end process FILTER_STATE_TRANSITION;
 
-  FILTER_STATE_CONTROL: process(state, Turn, Error, Acc, SyncReset)
+  FILTER_STATE_CONTROL: process(state, Turn, Error, Acc, AsyncReset, SyncReset)
     variable power_raw : signed(Acc'length-3-1 downto 0);
     variable power : signed(WORD_SIZE-1 downto 0);
     variable overflow_check : std_logic;
@@ -147,8 +162,10 @@ begin
     Load_Error <= '0';
     Load_Turn <= '0';
     Load_Acc <= '0';
+    Load_PowerAlarm <= '0';
+
     negate <= '0';
-    SyncReset_ErrorAndTurnReg <= SyncReset;
+    SyncReset_StateRegs <= SyncReset;
     SyncReset_Acc <= SyncReset;
     ScaledW <= to_signed(0, ScaledW'length);
     Done <= '0';
@@ -183,10 +200,11 @@ begin
         Load_Error <= '1';
 
       when CONVERT =>
+        Load_PowerAlarm <= '1';
         power_raw := resize(shift_right(Acc, 3), power_raw'length);
         
         overflow_check := (power_raw(power_raw'high) xor power_raw(power_raw'high-2)) or (power_raw(power_raw'high-1) xor power_raw(power_raw'high-2));
-        PowerAlarm <= overflow_check;
+        D_PowerAlarm <= overflow_check;
 
         if overflow_check = '1' then
           if power_raw(power_raw'high) = '0' then
