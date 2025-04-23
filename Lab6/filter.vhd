@@ -7,7 +7,7 @@ entity Filter is
     WORD_SIZE : natural
   );
   port (
-    Clock, AsyncReset : in std_logic;
+    Clock, AsyncReset, SyncReset : in std_logic;
 
     Start : in  std_logic;
     Done  : out std_logic;
@@ -24,8 +24,8 @@ architecture Behavior of Filter is
   -- Lo stato della macchina completo è composto da (state, Turn)
   signal state : state_t;
 
-  signal Data  : std_logic_vector(WORD_SIZE-1 downto 0);
   signal Turn  : std_logic;
+  signal Load_Turn : std_logic;
 
   -- Registro di lavoro che contiene E[i-1] e poi E[i]
   signal Error : signed(WORD_SIZE-1-1 downto 0);
@@ -38,26 +38,37 @@ architecture Behavior of Filter is
   signal Sum : signed(Acc'length-1 downto 0);
   signal negate : std_logic;
 
-  signal SyncReset : std_logic;
+  signal SyncReset_Acc : std_logic;
+  signal SyncReset_ErrorAndTurnReg : std_logic;
 
 begin
   -- DATA PATH
 
-  ERROR_AND_TURN_REG: entity work.Reg
+  ERROR_REG: entity work.Reg
   generic map (
-    N => WORD_SIZE
+    N => WORD_SIZE-1
   )
   port map (
-    Enable     => Load_Error,
-    Clock      => Clock,
-    AsyncReset => AsyncReset,
-    SyncReset  => SyncReset,
-    DataIn     => A_DataOut,
-    DataOut    => Data
+    Enable          => Load_Error,
+    Clock           => Clock,
+    AsyncReset      => AsyncReset,
+    SyncReset       => SyncReset_ErrorAndTurnReg,
+    DataIn          => A_DataOut(WORD_SIZE-1 downto 1),
+    signed(DataOut) => Error
   );
 
-  Error <= signed(Data(Data'length-1 downto 1));
-  Turn <= Data(0);
+  TURN_REG: entity work.Reg
+  generic map (
+    N => 1
+  )
+  port map (
+    Enable     => Load_Turn,
+    Clock      => Clock,
+    AsyncReset => AsyncReset,
+    SyncReset  => SyncReset_ErrorAndTurnReg,
+    DataIn     => A_DataOut(0 downto 0),
+    DataOut(0) => Turn
+  );
 
   ACC_REG: entity work.Reg
   generic map (
@@ -67,7 +78,7 @@ begin
     Enable          => Load_Acc,
     Clock           => Clock,
     AsyncReset      => AsyncReset,
-    SyncReset       => SyncReset,
+    SyncReset       => SyncReset_Acc,
     DataIn          => std_logic_vector(Sum),
     signed(DataOut) => Acc
   );
@@ -92,54 +103,60 @@ begin
       state <= IDLE;
 
     elsif rising_edge(Clock) then
-      case state is
-        when IDLE =>
-          if Start = '1' then
-            state <= ADD_A1;
-          end if;
+      if SyncReset = '1' then
+        state <= IDLE;
+      else
+        case state is
+          when IDLE =>
+            if Start = '1' then
+              state <= ADD_A1;
+            end if;
 
-        when ADD_A1 =>
-          state <= ADD_A2;
+          when ADD_A1 =>
+            state <= ADD_A2;
 
-        when ADD_A2 =>
-          state <= SAVE_PREV;
-        
-        when SAVE_PREV =>
-          state <= ADD_B1;
+          when ADD_A2 =>
+            state <= SAVE_PREV;
+          
+          when SAVE_PREV =>
+            state <= ADD_B1;
 
-        when ADD_B1 =>
-          state <= ADD_B2;
-        
-        when ADD_B2 =>
-          state <= CONVERT;
-        
-        when CONVERT =>
-          state <= FINISHED;
-        
-        when FINISHED =>
-          if Start = '0' then
-            state <= IDLE;
-          end if;
-      end case;
+          when ADD_B1 =>
+            state <= ADD_B2;
+          
+          when ADD_B2 =>
+            state <= CONVERT;
+          
+          when CONVERT =>
+            state <= FINISHED;
+          
+          when FINISHED =>
+            if Start = '0' then
+              state <= IDLE;
+            end if;
+        end case;
+      end if;
     end if;
   end process FILTER_STATE_TRANSITION;
 
-  FILTER_STATE_CONTROL: process(state, Turn, Error, Acc)
+  FILTER_STATE_CONTROL: process(state, Turn, Error, Acc, SyncReset)
     variable power_raw : signed(Acc'length-3-1 downto 0);
     variable power : signed(WORD_SIZE-1 downto 0);
     variable overflow_check : std_logic;
   begin
     Load_Error <= '0';
+    Load_Turn <= '0';
     Load_Acc <= '0';
     negate <= '0';
-    SyncReset <= '0';
+    SyncReset_ErrorAndTurnReg <= SyncReset;
+    SyncReset_Acc <= SyncReset;
     ScaledW <= to_signed(0, ScaledW'length);
     Done <= '0';
-    PowerAlarm <= '0';
 
     case state is
       when IDLE =>
-        SyncReset <= '1';
+        SyncReset_Acc <= '1';
+        Load_Turn <= '1';
       
       when ADD_A1 | ADD_B1 =>
         Load_Acc <= '1';

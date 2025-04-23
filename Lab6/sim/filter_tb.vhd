@@ -8,7 +8,7 @@ end entity;
 architecture Behavior of filter_tb is
     constant WORD_SIZE : natural := 8;
 
-    signal Clock, AsyncReset : std_logic;
+    signal Clock, AsyncReset, SyncReset : std_logic;
     signal Start, Done : std_logic;
 
     signal A_DataOut : std_logic_vector(WORD_SIZE-1 downto 0);
@@ -32,6 +32,7 @@ begin
       AsyncReset => AsyncReset,
       Start      => Start,
       Done       => Done,
+      SyncReset  => SyncReset,
       A_DataOut  => A_DataOut,
       DataIn_B   => DataIn_B,
       PowerAlarm => PowerAlarm
@@ -44,9 +45,10 @@ begin
     end process CLOCK_PROC;
 
     AsyncReset <= '0', '1' after 13 ns, '0' after 18 ns;
+    SyncReset <= '0', '1' after 127 ns, '0' after 133 ns;
 
-    Start <= '1' after 27.5 ns, '0' after 97.5 ns;
+    Start <= '1' after 27.5 ns, '0' after 97.5 ns, '1' after 113 ns, '0' after 123 ns, '1' after 197 ns, '0' after 203 ns;
 
-    Error <= to_signed(-10, WORD_SIZE-1);
-    Turn <= '1';
+    Error <= to_signed(56, WORD_SIZE-1), to_signed(20, WORD_SIZE-1) after 117 ns, to_signed(10, WORD_SIZE-1) after 203 ns;
+    Turn <= '0';
 end architecture;

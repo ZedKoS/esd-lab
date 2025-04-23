@@ -27,37 +27,23 @@ entity ControlUnit is
 end entity;
 
 architecture Behavior of ControlUnit is
-  type state_t is (IDLE, FILL_MEM_A, FILT, WRITE_MEM_B, FREEZE);
+  type state_t is (IDLE, FILL_MEM_A, FILTER, WRITE_MEM_B, FREEZE);
   signal state : state_t;
 
   signal Start_Filter, Filter_Done  : std_logic;
+  signal SyncReset_Filter : std_logic;
 
-component Filter is
-  generic (
-    WORD_SIZE : natural
-  );
-  port (
-    Clock, AsyncReset : in std_logic;
-
-    Start : in  std_logic;
-    Done  : out std_logic;
-
-    A_DataOut : in std_logic_vector(WORD_SIZE-1 downto 0);
-    DataIn_B  : out std_logic_vector(WORD_SIZE-1 downto 0);
-
-    PowerAlarm : out std_logic
-  );
-end component;
 begin
   -- FILTERING
 
-  FILTER_INST: Filter
+  FILTER_INST: entity work.Filter
   generic map (
     WORD_SIZE => WORD_SIZE
   )
   port map (
     Clock      => Clock,
     AsyncReset => AsyncReset,
+    SyncReset  => SyncReset_Filter,
     Start      => Start_Filter,
     Done       => Filter_Done,
     A_DataOut  => A_DataOut,
@@ -81,10 +67,10 @@ begin
 
         when FILL_MEM_A =>
           if AddrCounter_Done = '1' then
-            state <= FILT;
+            state <= FILTER;
           end if;
 
-        when FILT =>
+        when FILTER =>
           if Filter_Done = '1' then
             state <= WRITE_MEM_B;
           end if;
@@ -93,7 +79,7 @@ begin
           if AddrCounter_Done = '1' then
             state <= FREEZE;
           else
-            state <= FILT;
+            state <= FILTER;
           end if;
 
         when FREEZE =>
@@ -117,11 +103,13 @@ begin
 
     En_AddrCounter <= '0';
     Start_Filter <= '0';
+    SyncReset_Filter  <= '0';
     Done <= '0';
 
     case state is
       when IDLE =>
         SyncReset_AddrCounter <= '1';
+        SyncReset_Filter  <= '1';
 
       when FILL_MEM_A =>
         CS_A <= '1';
@@ -129,7 +117,7 @@ begin
         En_AddrCounter <= '1';
 
       -- il contatore è già azzerato a causa dell'overflow
-      when FILT =>
+      when FILTER =>
         Start_Filter <= '1';
 
         CS_A <= '1';
