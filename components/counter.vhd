@@ -11,6 +11,7 @@ entity CounterN is
         AsyncReset : in std_logic := '0';
         DataLoad : in unsigned(N-1 downto 0) := to_unsigned(0, N);
         Load : in std_logic;
+		Done : out std_logic;
 		Overflow : out std_logic;
 		Count : buffer unsigned(N-1 downto 0)
 	);			
@@ -18,23 +19,24 @@ end entity;
 
 architecture Behavior of CounterN is
 begin
+	Done <= '1' when Count = to_unsigned(2**N - 1, N) else '0';
+
 	process (Clock, AsyncReset)
 	begin
+		Overflow <= '0';
+
 		if AsyncReset = '1' then
 			Count <= (others => '0');
-			Overflow <= '0';
 
 		elsif rising_edge(Clock) then
             if Load = '1' then
                 Count <= DataLoad;
 			elsif Enable = '1' then
-				if Count = to_unsigned(2**N - 1, N) then
-					Overflow <= '1';
-				else
-					Overflow <= '0';
-				end if;
-
 				Count <= Count + 1;
+
+				if Count = to_unsigned(0, N) then
+					Overflow <= '1';
+				end if;
 			end if;
 		end if;
 	end process;

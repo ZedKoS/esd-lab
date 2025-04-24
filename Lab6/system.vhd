@@ -25,7 +25,7 @@ architecture Behavior of ControlSystem is
   signal A_DataOut, DataIn_B: std_logic_vector(WORD_SIZE-1 downto 0);
 
   signal En_AddrCounter, SyncReset_AddrCounter, AddrCounter_Done : std_logic;
-  signal Address : std_logic_vector(WORD_SIZE-1 downto 0);
+  signal Address : std_logic_vector(ADDRESS_SIZE-1 downto 0);
 
 begin
   -- CONTROL UNIT
@@ -63,9 +63,10 @@ begin
     Enable     => En_AddrCounter,
     Clock      => Clock,
     AsyncReset => AsyncReset,
-    DataLoad   => to_unsigned(0, WORD_SIZE),
+    DataLoad   => to_unsigned(0, ADDRESS_SIZE),
     Load       => SyncReset_AddrCounter,
-    Overflow   => AddrCounter_Done,
+    Done       => AddrCounter_Done,
+    Overflow   => open,
     std_logic_vector(Count) => Address
   );
 
