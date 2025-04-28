@@ -11,8 +11,7 @@ architecture Behavior of filter_tb is
     signal Clock, AsyncReset, SyncReset : std_logic;
     signal Start, Done : std_logic;
 
-    signal A_DataOut : std_logic_vector(WORD_SIZE-1 downto 0);
-    signal Error : signed(A_DataOut'length-1-1 downto 0);
+    signal Error : signed(WORD_SIZE-1-1 downto 0);
     signal Turn : std_logic;
     
     signal DataIn_B : std_logic_vector(WORD_SIZE-1 downto 0);
@@ -20,9 +19,6 @@ architecture Behavior of filter_tb is
     signal PowerAlarm : std_logic;
 
 begin
-    A_DataOut(7 downto 1) <= std_logic_vector(Error);
-    A_DataOut(0) <= Turn;
-
     DUT: entity work.Filter
     generic map (
       WORD_SIZE => WORD_SIZE
@@ -33,8 +29,9 @@ begin
       Start      => Start,
       Done       => Done,
       SyncReset  => SyncReset,
-      A_DataOut  => A_DataOut,
-      DataIn_B   => DataIn_B,
+      Error_In   => std_logic_vector(Error),
+      Turn_In    => Turn,
+      DataOut    => DataIn_B,
       PowerAlarm => PowerAlarm
     );
 

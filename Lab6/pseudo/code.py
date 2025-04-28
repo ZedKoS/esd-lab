@@ -1,3 +1,4 @@
+import math
 import random
 
 # Constants
@@ -39,7 +40,7 @@ for i in range(len(MEM_A)):
         power = -2**(WORD_SIZE-1)
         power_alarm = 1
     else:
-        power = int(floor(power_raw))
+        power = int(math.floor(power_raw))
         power_alarm = 0
     
     # Save to MEM_B[i] and power_alarms[i]

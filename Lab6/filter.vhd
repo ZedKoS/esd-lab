@@ -12,8 +12,9 @@ entity Filter is
     Start : in  std_logic;
     Done  : out std_logic;
 
-    A_DataOut : in std_logic_vector(WORD_SIZE-1 downto 0);
-    DataIn_B  : out std_logic_vector(WORD_SIZE-1 downto 0);
+    Error_In : in std_logic_vector(WORD_SIZE-1-1 downto 0);
+    Turn_In  : in std_logic;
+    DataOut  : out std_logic_vector(WORD_SIZE-1 downto 0);
 
     PowerAlarm : out std_logic
   );
@@ -24,7 +25,7 @@ architecture Behavior of Filter is
   -- Lo stato della macchina completo è composto da (state, Turn)
   signal state : state_t;
 
-  signal Turn  : std_logic;
+  signal Turn : std_logic;
   signal Load_Turn : std_logic;
 
   -- Registro di lavoro che contiene E[i-1] e poi E[i]
@@ -55,7 +56,7 @@ begin
     Clock           => Clock,
     AsyncReset      => AsyncReset,
     SyncReset       => SyncReset_StateRegs,
-    DataIn          => A_DataOut(WORD_SIZE-1 downto 1),
+    DataIn          => Error_in,
     signed(DataOut) => Error
   );
 
@@ -68,7 +69,7 @@ begin
     Clock      => Clock,
     AsyncReset => AsyncReset,
     SyncReset  => SyncReset_StateRegs,
-    DataIn     => A_DataOut(0 downto 0),
+    DataIn(0)  => Turn_In,
     DataOut(0) => Turn
   );
 
@@ -213,9 +214,9 @@ begin
             power := to_signed(-2**(power'length-1), power'length);
           end if;
 
-          DataIn_B <= std_logic_vector(power);
+          DataOut <= std_logic_vector(power);
         else
-          DataIn_B <= std_logic_vector(resize(power_raw, WORD_SIZE));
+          DataOut <= std_logic_vector(resize(power_raw, WORD_SIZE));
         end if;
 
       when FINISHED =>

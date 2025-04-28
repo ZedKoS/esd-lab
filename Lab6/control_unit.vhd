@@ -46,8 +46,9 @@ begin
     SyncReset  => SyncReset_Filter,
     Start      => Start_Filter,
     Done       => Filter_Done,
-    A_DataOut  => A_DataOut,
-    DataIn_B   => DataIn_B,
+    Error_In   => A_DataOut(WORD_SIZE-1 downto 1),
+    Turn_In    => A_DataOut(0),
+    DataOut   => DataIn_B,
     PowerAlarm => PowerAlarm
   );
 

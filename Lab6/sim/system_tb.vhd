@@ -52,11 +52,11 @@ begin
         while not endfile(MEM_A_FILE) loop
             readline(MEM_A_FILE, line_in);
             read(line_in, value);
-            DataIn <= std_logic_vector(to_signed(value, WORD_SIZE));  -- convert to signed vector
+            DataIn <= std_logic_vector(to_signed(value, WORD_SIZE));
             wait for 10 ns;
         end loop;
 
-        wait;  -- end process
+        wait;
     end process READ_MEM_A;
 
 end architecture;
