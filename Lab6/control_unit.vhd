@@ -2,6 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+-- Unità di controllo del sistema
+-- Gestisce tutti i segnali di controllo eccetto quelli interni al filtro
 entity ControlUnit is
   generic (
     WORD_SIZE : natural
@@ -20,7 +22,6 @@ entity ControlUnit is
 
     En_AddrCounter, SyncReset_AddrCounter : out std_logic;
     AddrCounter_Done : in std_logic;
-    -- Address : in std_logic_vector(WORD_SIZE-1 downto 0);
 
     PowerAlarm : out std_logic
   );
@@ -94,6 +95,7 @@ begin
     end if;
   end process STATE_TRANSITION;
 
+  -- Uscite combinatorie
   STATE_CONTROL: process(state)
   begin
     SyncReset_AddrCounter <= '0';

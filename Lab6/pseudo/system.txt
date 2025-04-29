@@ -1,0 +1,39 @@
+# IDLE
+while Start != 1 do
+    -- R = E[-1]
+    R = 0
+end
+
+# FILL_MEM_A
+for i in 0 to 1023 do
+    MEM_A[i] = DATA_IN
+end
+
+# FILTER + WRITE_MEM_B
+for i in 0 to 1023 do
+    E_prev = R
+    E_curr = MEM_A[i]
+
+    if TURN=0 then
+        power = 2.25*E_curr + 1.75*E_prev
+    else
+        power = 1.25*E_curr + 0.875*E_prev
+    end
+
+    POWER_ALARM = (power > 2^7 - 1) or (power < -2^7)
+    if not POWER_ALARM:
+        MEM_B[i] = power
+    else:
+        if power > 0:
+            MEM_B[i] = 127
+        elif power < 0:
+            MEM_B[i] = -128
+
+    R = E_curr
+end
+
+# DONE
+Done = 1
+
+while start != 0 do
+end

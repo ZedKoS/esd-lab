@@ -2,6 +2,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+-- Unità di elaborazione
+-- Prende in ingresso dei valori Error_In e Turn_In, insieme a un segnale di Start.
+-- Timing:
+-- - Turn_In: deve essere valido sul fronte di salita del clock in cui il filtro
+--   è in IDLE e Start: 0 -> 1
+-- - Error_In: deve essere valido sul fronte di salita del clock in cui il filtro
+--   è in SAVE_PREV (3 colpi di clock dopo Turn_In)
 entity Filter is
   generic (
     WORD_SIZE : natural
@@ -32,11 +39,14 @@ architecture Behavior of Filter is
   signal Error : signed(WORD_SIZE-1-1 downto 0);
   signal Load_Error : std_logic;
 
+  -- Registro di accumulazione che contiene i risultati parziali
   signal Acc : signed(Error'length+6-1 downto 0);
   signal Load_Acc : std_logic;
   signal ScaledW : signed(Acc'length-1 downto 0);
 
+  -- Risultato della somma
   signal Sum : signed(Acc'length-1 downto 0);
+  -- Utilizzato per svolgere una sottrazione invece di una somma
   signal negate : std_logic;
 
   signal Load_PowerAlarm, D_PowerAlarm : std_logic;
@@ -155,7 +165,10 @@ begin
     end if;
   end process FILTER_STATE_TRANSITION;
 
-  FILTER_STATE_CONTROL: process(state, Turn, Error, Acc, AsyncReset, SyncReset)
+  -- 'Turn' fa parte (implicitamente) dello stato, perciò va incluso nella
+  -- sensitivity list.
+  FILTER_STATE_CONTROL: process(state, Turn, Error, Acc, SyncReset)
+    -- Power prima della conversione su 8 bit
     variable power_raw : signed(Acc'length-3-1 downto 0);
     variable power : signed(WORD_SIZE-1 downto 0);
     variable overflow_check : std_logic;
@@ -171,6 +184,8 @@ begin
     ScaledW <= to_signed(0, ScaledW'length);
     Done <= '0';
 
+    -- resize(): aumenta/riduce il numero di bit del segnale dato, tenendo
+    --   conto del fatto che sia Signed o Unsigned.
     case state is
       when IDLE =>
         SyncReset_Acc <= '1';
@@ -186,7 +201,11 @@ begin
 
       when ADD_A2 =>
         Load_Acc <= '1';
+
+        -- ScaledW viene negato e l'adder riceve un carry_in pari a '1'
+        --   => viene eseguita una sottrazione
         negate <= '1';
+
         if Turn = '0' then
           ScaledW <= not(shift_left(resize(Error, ScaledW'length), 1));
         else
@@ -204,10 +223,17 @@ begin
         Load_PowerAlarm <= '1';
         power_raw := resize(shift_right(Acc, 3), power_raw'length);
         
-        overflow_check := (power_raw(power_raw'high) xor power_raw(power_raw'high-2)) or (power_raw(power_raw'high-1) xor power_raw(power_raw'high-2));
+        -- Controlla che gli ultimi 3 bit non siano tutti uguali;
+        -- il bit 7 rappresenta il bit di segno su 8 bit, perciò, se il numero
+        -- su 10 bit è rappresentabile su 8, allora i bit 8 e 9 devono essere 
+        -- uguali al bit 7.
+        overflow_check := (power_raw(power_raw'high) xor power_raw(power_raw'high-2))
+          or (power_raw(power_raw'high-1) xor power_raw(power_raw'high-2));
+
         D_PowerAlarm <= overflow_check;
 
         if overflow_check = '1' then
+          -- Satura 'power' a 127 o -128 in base al segno
           if power_raw(power_raw'high) = '0' then
             power := to_signed(2**(power'length-1) - 1, power'length);
           else

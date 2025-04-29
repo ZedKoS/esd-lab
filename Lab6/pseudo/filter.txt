@@ -5,37 +5,37 @@ check : bit                         # SIGNAL
 W : reg(7) := if i = 0 then 0 else E[i-1]
 
 start:
-    acc <- 0
+    acc <- 0            # IDLE
 
 if turn = 1 goto turn 1
 
 # -- turn = 0: a = 14/8, b = 18/8 -- #
 turn0:
     # a: *14 = 16-2
-    acc <- acc + 16*W
-    acc <- acc -  2*W
+    acc <- acc + 16*W   # ADD_A1
+    acc <- acc -  2*W   # ADD_A2
 
-    W <- E[i]
+    W <- E[i]           # SAVE_PREV
 
     # b: *18 = 16+2
-    acc <- acc + 16*W
-    acc <- acc +  2*W
+    acc <- acc + 16*W   # ADD_B1
+    acc <- acc +  2*W   # ADD_B2
 
 goto calc_power
 
 # -- turn = 1: a = 7/8, b = 10/8 -- #
 turn1:
     # a: *7 = 8-1
-    acc <- acc + 8*W
-    acc <- acc -   W
+    acc <- acc + 8*W    # ADD_A1
+    acc <- acc -   W    # ADD_A2
+                    
+    W <- E[i]           # SAVE_PREV
+                    
+    # b: *10 = 8+2  
+    acc <- acc + 8*W    # ADD_B1
+    acc <- acc + 2*W    # ADD_B2
 
-    W <- E[i]
-
-    # b: *10 = 8+2
-    acc <- acc + 8*W
-    acc <- acc + 2*W
-
-calc_power:
+calc_power:             # CONVERT
     # p <- acc / 8
     p <- acc[3..]
 

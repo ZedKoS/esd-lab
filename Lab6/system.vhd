@@ -49,7 +49,6 @@ begin
     En_AddrCounter        => En_AddrCounter,
     SyncReset_AddrCounter => SyncReset_AddrCounter,
     AddrCounter_Done      => AddrCounter_Done,
-    -- Address               => Address,
     PowerAlarm            => PowerAlarm
   );
 
