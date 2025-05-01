@@ -20,6 +20,19 @@ work/
 *.cr.mti
 *.wlf
 
+# CubeIDE files
+.settings/
+Debug/
+Inc/
+Startup/
+.metadata/
+*.cproject
+*.project
+*.launch
+*.ld
+syscall.c
+sysmem.c
+
 # Other
 .DS_Store
 transcript
