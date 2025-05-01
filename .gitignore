@@ -30,8 +30,6 @@ Startup/
 *.project
 *.launch
 *.ld
-syscalls
-sysmem
 
 # Other
 .DS_Store
