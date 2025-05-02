@@ -47,6 +47,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -84,19 +85,9 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
+  MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-  //PORT REGISTERS
-   volatile unsigned int *GPIOA_MODER = (unsigned int*) (0x40020000 + 0x00);
-   volatile unsigned int *GPIOA_ODR = (unsigned int*) (0x40020000 + 0x14);
-   volatile unsigned int *GPIOC_MODER = (unsigned int*) (0x40020000 + 0x0800 + 0x00);
-   volatile unsigned int *GPIOC_PUPDR = (unsigned int*) (0x40020000 + 0x0800 + 0x0C);
-   volatile unsigned int *GPIOC_IDR = (unsigned int*) (0x40020000 + 0x0800 + 0x10);
-   //CLOCK REGISTERS
-   volatile unsigned int *RCC_AHB1ENR = (unsigned int*) (0x40023800 + 0x30);
-   //ENABLE PORT CLOCK:
-   // this ensure that the peripheral is enabled and connected to the AHB1 bus
-   *RCC_AHB1ENR |= 0x01U;
-   *RCC_AHB1ENR |= 0x04U;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -106,6 +97,13 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  int C_input = LL_GPIO_ReadReg(GPIOC, IDR);
+	  int push_status = (C_input >> 13) & 0x1;
+	  if(push_status == 1){
+	               LL_GPIO_WriteReg(GPIOA, ODR, (LL_GPIO_ReadReg(GPIOA, ODR) & ~(0x20)));
+	           } else{
+	        	   LL_GPIO_WriteReg(GPIOA, ODR, (LL_GPIO_ReadReg(GPIOA, ODR) | (0x20)));
+	           }
   }
   /* USER CODE END 3 */
 }
@@ -149,6 +147,44 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_GPIO_Init(void)
+{
+  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+  /* USER CODE BEGIN MX_GPIO_Init_1 */
+
+  /* USER CODE END MX_GPIO_Init_1 */
+
+  /* GPIO Ports Clock Enable */
+  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
+  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
+
+  /**/
+  LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_5);
+
+  /**/
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_13;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /**/
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_5;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /* USER CODE BEGIN MX_GPIO_Init_2 */
+
+  /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
