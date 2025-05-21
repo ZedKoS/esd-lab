@@ -207,14 +207,6 @@ void TIM3_IRQHandler(void)
   /* USER CODE BEGIN TIM3_IRQn 0 */
   /* USER CODE END TIM3_IRQn 0 */
   HAL_TIM_IRQHandler(&htim3);
-  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6)){ //rising edge
-	  period = ((capture - edger)/TIM3CLK)*(TIM3PSC+1);
-	  unsigned int edger = capture;
-  }
-  else{ //falling edge
-	  unsigned int edgef = capture;
-	  dutycycle=(edgef-edger)/period;
-  }
   /* USER CODE BEGIN TIM3_IRQn 1 */
   /* USER CODE END TIM3_IRQn 1 */
 }
