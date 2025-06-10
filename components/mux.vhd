@@ -19,7 +19,7 @@ end Mux1;
 architecture Behavior of Mux1 is
 begin
 	f <= x(to_integer(Unsigned(s)));
-end Functional;
+end Behavior;
 
 --
 
@@ -48,5 +48,5 @@ begin
 	MuxLoop: for i in bits - 1 downto 0 generate
 		f(i) <= x(to_integer(Unsigned(s)), i);
 	end generate;
-end Functional;
+end Behavior;
 

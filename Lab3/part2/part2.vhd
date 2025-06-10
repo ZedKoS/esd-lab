@@ -60,5 +60,5 @@ begin
 	DECODERS : hexadecimal_ssd_decoder port map (c => outSum, dec => HEX2);
 	
 	LEDR(3 downto 0) <= outSum;
-	LEDR(8 downto 4) <= (others => 'Z');
+	LEDR(8 downto 4) <= (others => '0');
 end architecture;

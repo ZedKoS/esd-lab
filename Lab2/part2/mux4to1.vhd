@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
---Multiplexer a 4 ingressi a 2 bit con segnale di selezione a 1 bit
+-- Multiplexer a 4 ingressi a 2 bit con segnale di selezione a 2 bit
 entity mux4to1 is
 	port (a, b, c, d, s : in std_logic_vector(1 downto 0);
 			m : out std_logic_vector(1 downto 0)
